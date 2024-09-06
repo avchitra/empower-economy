@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronRight, ChevronLeft, User, Mail, Target, BookOpen, CheckCircle } from 'lucide-react'
+import { ChevronRight, ChevronLeft, User, Mail, Target, BookOpen, CheckCircle, Lock, Google, Github } from 'lucide-react'
+import { signIn } from 'next-auth/react'
 
 const steps = [
   { title: 'Welcome', icon: User },
@@ -10,6 +11,7 @@ const steps = [
   { title: 'Goals', icon: Target },
   { title: 'Experience', icon: BookOpen },
   { title: 'Confirm', icon: CheckCircle },
+  { title: 'Account', icon: Lock },
 ]
 
 const financialGoals = [
@@ -22,15 +24,30 @@ const financialGoals = [
 
 const experienceLevels = ['Beginner', 'Intermediate', 'Advanced']
 
-export function OnboardingFlow() {
+interface UserData {
+  age: string;
+  name: string;
+  email: string;
+  goals: string[];
+  experience: string;
+}
+
+interface OnboardingFlowProps {
+  onExit?: () => void;
+}
+
+export function OnboardingFlow({ onExit }: OnboardingFlowProps) {
   const [step, setStep] = useState(0)
-  const [userData, setUserData] = useState({
+  const [userData, setUserData] = useState<UserData>({
     age: '',
     name: '',
     email: '',
     goals: [],
     experience: '',
   })
+
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUserData({ ...userData, [e.target.name]: e.target.value })
@@ -50,7 +67,30 @@ export function OnboardingFlow() {
   }
 
   const handleBack = () => {
-    if (step > 0) setStep(step - 1)
+    if (step > 0) {
+      setStep(step - 1)
+    } else {
+      handleExit()
+    }
+  }
+
+  const handleExit = () => {
+    if (onExit && typeof onExit === 'function') {
+      onExit()
+    } else {
+      console.log('Exiting onboarding flow')
+    }
+  }
+
+  const handleEmailSignUp = async (e: React.FormEvent) => {
+    e.preventDefault()
+    // Implement your email sign-up logic here
+    console.log('Signing up with email:', email, 'and password:', password)
+    // You might want to call an API endpoint to create the user account
+  }
+
+  const handleOAuthSignIn = (provider: 'google' | 'github') => {
+    signIn(provider, { callbackUrl: '/dashboard' })
   }
 
   const ProgressBar = () => (
@@ -161,70 +201,126 @@ export function OnboardingFlow() {
             </div>
           </div>
         )
+      case 5:
+        return (
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold text-[#00CC66]">Create Your Account</h2>
+            <p className="text-gray-600">Choose a method to create your account:</p>
+            <div className="space-y-2">
+              <button
+                onClick={() => handleOAuthSignIn('google')}
+                className="w-full p-2 bg-red-500 text-white rounded-md hover:bg-opacity-80 transition-colors flex items-center justify-center"
+              >
+                <Google size={20} className="mr-2" />
+                Sign up with Google
+              </button>
+              <button
+                onClick={() => handleOAuthSignIn('github')}
+                className="w-full p-2 bg-gray-800 text-white rounded-md hover:bg-opacity-80 transition-colors flex items-center justify-center"
+              >
+                <Github size={20} className="mr-2" />
+                Sign up with GitHub
+              </button>
+              <div className="relative">
+                <hr className="my-4" />
+                <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white px-2 text-gray-500">
+                  or
+                </span>
+              </div>
+              <form onSubmit={handleEmailSignUp}>
+                <input
+                  type="email"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00CC66] mb-2"
+                  required
+                />
+                <input
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00CC66] mb-2"
+                  required
+                />
+                <button
+                  type="submit"
+                  className="w-full p-2 bg-[#00CC66] text-white rounded-md hover:bg-opacity-80 transition-colors"
+                >
+                  Create Account
+                </button>
+              </form>
+            </div>
+          </div>
+        )
       default:
         return null
     }
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
-        <ProgressBar />
-        <div className="flex items-center justify-between mb-6">
-          {steps.map((s, index) => {
-            const Icon = s.icon
-            return (
-              <div
-                key={index}
-                className={`flex flex-col items-center ${
-                  index <= step ? 'text-[#00CC66]' : 'text-gray-400'
-                }`}
-              >
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.9 }}
+        transition={{ duration: 0.3 }}
+        className="fixed inset-0 bg-gray-100 flex items-center justify-center p-4 z-50"
+      >
+        <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+          <ProgressBar />
+          <div className="flex items-center justify-between mb-6">
+            {steps.map((s, index) => {
+              const Icon = s.icon
+              return (
                 <div
-                  className={`rounded-full p-2 ${
-                    index <= step ? 'bg-[#CCFF99]' : 'bg-gray-200'
+                  key={index}
+                  className={`flex flex-col items-center ${
+                    index <= step ? 'text-[#00CC66]' : 'text-gray-400'
                   }`}
                 >
-                  <Icon size={16} />
+                  <div
+                    className={`rounded-full p-2 ${
+                      index <= step ? 'bg-[#CCFF99]' : 'bg-gray-200'
+                    }`}
+                  >
+                    <Icon size={16} />
+                  </div>
+                  <span className="text-xs mt-1 text-center w-16 truncate">{s.title}</span>
                 </div>
-                <span className="text-xs mt-1 text-center w-16 truncate">{s.title}</span>
-              </div>
-            )
-          })}
+              )
+            })}
+          </div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={step}
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -50 }}
+              transition={{ duration: 0.3 }}
+            >
+              <StepContent />
+            </motion.div>
+          </AnimatePresence>
+          <div className="flex justify-between mt-6">
+            <button
+              onClick={handleBack}
+              className="flex items-center px-4 py-2 rounded-md transition-colors bg-[#FF6B6B] text-white hover:bg-opacity-80"
+            >
+              <ChevronLeft size={20} className="mr-2" />
+              {step === 0 ? 'Exit' : 'Back'}
+            </button>
+            <button
+              onClick={handleNext}
+              className="flex items-center px-4 py-2 bg-[#00CC66] text-white rounded-md hover:bg-opacity-80 transition-colors"
+            >
+              {step === steps.length - 1 ? 'Finish' : 'Next'}
+              <ChevronRight size={20} className="ml-2" />
+            </button>
+          </div>
         </div>
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={step}
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -50 }}
-            transition={{ duration: 0.3 }}
-          >
-            <StepContent />
-          </motion.div>
-        </AnimatePresence>
-        <div className="flex justify-between mt-6">
-          <button
-            onClick={handleBack}
-            disabled={step === 0}
-            className={`flex items-center px-4 py-2 rounded-md transition-colors ${
-              step === 0
-                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                : 'bg-[#FF6B6B] text-white hover:bg-opacity-80'
-            }`}
-          >
-            <ChevronLeft size={20} className="mr-2" />
-            Back
-          </button>
-          <button
-            onClick={handleNext}
-            className="flex items-center px-4 py-2 bg-[#00CC66] text-white rounded-md hover:bg-opacity-80 transition-colors"
-          >
-            {step === steps.length - 1 ? 'Finish' : 'Next'}
-            <ChevronRight size={20} className="ml-2" />
-          </button>
-        </div>
-      </div>
-    </div>
+      </motion.div>
+    </AnimatePresence>
   )
 }
