@@ -81,7 +81,7 @@ export function LandingPage() {
                 ].map((testimonial, index) => (
                   <Card key={index} className="bg-white hover:shadow-lg transition-shadow">
                     <CardContent className="p-6">
-                      <p className="mb-4 italic">"{testimonial.quote}"</p>
+                      <p className="mb-4 italic">&ldquo;{testimonial.quote}&rdquo;</p>
                       <p className="font-semibold">{testimonial.name}</p>
                     </CardContent>
                   </Card>
