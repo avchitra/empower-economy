@@ -1,9 +1,5 @@
-import { OnboardingFlow } from '../components/onboarding-flow'
+import { LandingPage } from '@/components/landing-page'
 
 export default function Home() {
-  return (
-    <main>
-      <OnboardingFlow />
-    </main>
-  )
+  return <LandingPage />
 }

@@ -2,11 +2,10 @@
 
 import { useState } from 'react'
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { PiggyBank, TrendingUp, DollarSign } from "lucide-react"
 import Link from "next/link"
-import { OnboardingFlow } from './onboarding-flow'
+import OnboardingFlow from './onboarding-flow'
 
 export function LandingPage() {
   const [showOnboarding, setShowOnboarding] = useState(false)
@@ -14,7 +13,7 @@ export function LandingPage() {
   return (
     <div className="min-h-screen bg-[#CCFF99] text-black">
       {showOnboarding ? (
-        <OnboardingFlow />
+        <OnboardingFlow onExit={() => setShowOnboarding(false)} />
       ) : (
         <>
           {/* Header */}
@@ -96,19 +95,12 @@ export function LandingPage() {
             <div className="container mx-auto px-4">
               <div className="max-w-md mx-auto bg-white rounded-lg p-8 shadow-lg">
                 <h2 className="text-3xl font-bold mb-6 text-center">Join Empower Economy</h2>
-                <form className="space-y-4">
-                  <Input type="text" placeholder="Your Name" className="w-full" />
-                  <Input type="email" placeholder="Your Email" className="w-full" />
-                  <Button 
-                    className="w-full bg-[#FF6B6B] hover:bg-[#FF4F4F] text-white transition-colors"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      setShowOnboarding(true)
-                    }}
-                  >
-                    Sign Up for Free
-                  </Button>
-                </form>
+                <Button 
+                  className="w-full bg-[#FF6B6B] hover:bg-[#FF4F4F] text-white transition-colors py-4 text-lg"
+                  onClick={() => setShowOnboarding(true)}
+                >
+                  Sign Up for Free
+                </Button>
               </div>
             </div>
           </section>

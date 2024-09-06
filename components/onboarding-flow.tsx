@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronRight, ChevronLeft, User, Mail, Target, BookOpen, CheckCircle, Lock, Google, Github } from 'lucide-react'
+import { ChevronRight, ChevronLeft, User, Mail, Target, BookOpen, CheckCircle, Lock } from 'lucide-react'
 import { signIn } from 'next-auth/react'
 
 const steps = [
@@ -211,14 +211,12 @@ export function OnboardingFlow({ onExit }: OnboardingFlowProps) {
                 onClick={() => handleOAuthSignIn('google')}
                 className="w-full p-2 bg-red-500 text-white rounded-md hover:bg-opacity-80 transition-colors flex items-center justify-center"
               >
-                <Google size={20} className="mr-2" />
                 Sign up with Google
               </button>
               <button
                 onClick={() => handleOAuthSignIn('github')}
                 className="w-full p-2 bg-gray-800 text-white rounded-md hover:bg-opacity-80 transition-colors flex items-center justify-center"
               >
-                <Github size={20} className="mr-2" />
                 Sign up with GitHub
               </button>
               <div className="relative">
@@ -324,3 +322,5 @@ export function OnboardingFlow({ onExit }: OnboardingFlowProps) {
     </AnimatePresence>
   )
 }
+
+export default OnboardingFlow;
